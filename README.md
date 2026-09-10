@@ -12,31 +12,26 @@ git clone https://github.com/Elevenheights/ComfyUI-Grok-Chat.git comfyui_grok_ch
 python -m pip install -r comfyui_grok_chat/requirements.txt
 ```
 
-Set `XAI_API_KEY` in the environment used to start ComfyUI, then restart ComfyUI.
-
 On the common RunPod ComfyUI template, the full custom-node path is `/workspace/ComfyUI/custom_nodes`.
 
 ## Add the xAI key on RunPod
 
-Use a RunPod Secret so the API key is not stored in a workflow, shell history, or public template:
-
-1. Open the RunPod console and go to **Secrets**.
-2. Create a secret named `xai_api_key` and paste the xAI API key as its value.
-3. Open **Pods**, click the three-dot menu beside the ComfyUI pod, and choose **Edit Pod**.
-4. Expand **Environment Variables** and add:
-   - **Key:** `XAI_API_KEY`
-   - **Value:** `{{ RUNPOD_SECRET_xai_api_key }}`
-5. Save the pod. RunPod restarts it to apply the environment variable.
-
-Pod edits can clear files outside the mounted volume. Keep ComfyUI and its custom nodes under `/workspace`.
-
-After the pod restarts, verify that the variable exists without displaying the secret:
+Open one file:
 
 ```bash
-python -c "import os; print('XAI_API_KEY configured:', bool(os.getenv('XAI_API_KEY')))"
+nano /workspace/ComfyUI/custom_nodes/comfyui_grok_chat/xai_api_key.txt
 ```
 
-The output should be `XAI_API_KEY configured: True`. Restart ComfyUI once more if the application process was already running before the variable was added.
+Paste only your xAI key, then press `Ctrl+O`, `Enter`, and `Ctrl+X`. Restart
+ComfyUI so the model list reloads. The key file is ignored by Git and is never
+saved in a workflow.
+
+If the repository was cloned using a different folder name, edit
+`xai_api_key.txt` inside that folder instead. Advanced installations may still
+use the `XAI_API_KEY` environment variable; it takes priority over the file.
+
+Keep ComfyUI and this custom node under `/workspace` so the key file survives a
+RunPod pod restart. Do not put the key in a workflow or commit it to GitHub.
 
 ## Node
 
@@ -51,4 +46,5 @@ Inputs include:
 - Context retention and maximum context controls
 - Temperature, top-p, and seed
 
-API keys are read only from environment variables and are not saved in ComfyUI workflow files.
+The API key is read from `XAI_API_KEY` or the ignored local `xai_api_key.txt`
+file. It is not saved in ComfyUI workflow files.

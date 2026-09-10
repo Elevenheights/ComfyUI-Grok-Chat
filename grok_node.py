@@ -7,12 +7,36 @@ from PIL import Image
 from io import BytesIO
 import torch
 from openai import OpenAI
+from pathlib import Path
+
+
+API_KEY_FILE = Path(__file__).with_name("xai_api_key.txt")
+
+
+def load_xai_api_key():
+    """Load the key from the environment or the easy-to-edit local key file."""
+    environment_key = os.getenv("XAI_API_KEY", "").strip()
+    if environment_key:
+        return environment_key
+
+    try:
+        file_key = API_KEY_FILE.read_text(encoding="utf-8-sig").strip()
+    except FileNotFoundError:
+        return ""
+    except OSError as error:
+        print(f"[comfyui_grok_chat] Could not read {API_KEY_FILE}: {error}")
+        return ""
+
+    # Accept either a bare key or XAI_API_KEY=... so the file is forgiving.
+    if file_key.startswith("XAI_API_KEY="):
+        file_key = file_key.split("=", 1)[1].strip().strip('"').strip("'")
+    return file_key
 
 def load_grok_models():
-    api_key = os.getenv("XAI_API_KEY")
+    api_key = load_xai_api_key()
     fallback_models = ["grok-2-latest", "grok-2-vision-latest", "grok-vision-beta", "grok-beta", "grok-2-1212"]
     if not api_key:
-        print("[comfyui_grok_chat] Warning: XAI_API_KEY environment variable not set. Using fallback models list.")
+        print(f"[comfyui_grok_chat] Warning: no xAI key found. Add it to {API_KEY_FILE} or set XAI_API_KEY. Using fallback models list.")
         return fallback_models
     try:
         headers = {"Authorization": f"Bearer {api_key}"}
@@ -114,9 +138,9 @@ class GrokChatNode:
             return encode_single(image)
 
     def execute(self, prompt, additional_text, model, max_context_length_tokens, temperature, top_p, keep_context, seed, image=None, system_instruction=""):
-        api_key = os.getenv("XAI_API_KEY")
+        api_key = load_xai_api_key()
         if not api_key:
-            return ("Error: XAI_API_KEY environment variable is not set.",)
+            return (f"Error: Paste your xAI API key into {API_KEY_FILE}, then restart ComfyUI.",)
 
         client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
 
