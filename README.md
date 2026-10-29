@@ -2,6 +2,23 @@
 
 A ComfyUI custom node for sending text and optional image inputs to xAI Grok models. It supports system instructions, additional prompt text, conversation context, model selection, temperature, top-p, and seed controls.
 
+## Larger prompt editor
+
+Prompt, Additional Text and System Instructions now have larger fields in the
+node. Use **Make text boxes taller** or **Make text boxes shorter** to adjust
+all three. The size setting is saved with the workflow.
+
+Choose **Open large prompt editor** for a roomy editing window. Drag the window's
+bottom-right corner to resize it, or drag the bottom-right corner of an individual
+text box to change its height. Text changes apply directly to the node; **Done**
+or Escape closes the editor. The editor uses the same prompts and API settings
+as the node.
+
+To update an installation cloned with Git, run `git pull` inside the node folder,
+then restart ComfyUI and refresh the browser. For ZIP installations, replace the
+node files with the latest download while keeping your API key files. Include
+the new `web` folder when installing or updating.
+
 ## Install and setup
 
 ### 1. Install the node
